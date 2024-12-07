@@ -36,7 +36,7 @@ jobs:
       - run: eval $(opam env)
       - run: opam exec -- dune build -j3
       - run: opam exec -- zanuda -dir .
-      - run: opam exec -- dune exec fp_lab_1
+      - run: opam exec -- dune exec fp_lab_2
       - run: opam exec -- dune runtest --force
 
   lint-doc:
