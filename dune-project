@@ -22,7 +22,7 @@
 (package
  (name fp_lab_2)
 
- (synopsis "Laboratory focused on implementing a data structure in OCaml.")
+ (synopsis "Laboratory focused on implementing a data structure in OCaml")
 
  (allow_empty)
  (depends
@@ -36,6 +36,9 @@
   benchmark
   zanuda
   ppx_deriving
+  ppx_assert
   ppx_sexp_conv
+  ppx_inline_test
+  ppx_jane
   sexplib
 ))
