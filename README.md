@@ -1,3 +1,10 @@
+## Изменения с прошлой демонстрации:
+https://github.com/jefremof/FP-lab-2/blob/main/test/pbtests.ml
+- Рефакторинг кода property-based тестов
+- Добавлен [pb-test операции map](https://github.com/jefremof/FP-lab-2/blob/7098d87fe9df65fc89ba2ce052b4b0d5c9d6a49a/test/pbtests.ml#L124) из одного типа в другой
+- В тестах со сравнением Bag - использован bag compare, а не приведение к спискам
+
+---
 # FP-lab-1
 
 
