@@ -21,6 +21,7 @@ module type Bag = sig
   val filter : (elt * int -> bool) -> t -> t
   val to_list2 : t -> (elt * int) list
   val from_list2 : (elt * int) list -> t
+  val length : t -> int
 end
 
 module MakePrefixTree (Dep : Prefixes.S0) = struct
@@ -78,6 +79,7 @@ module MakePrefixTree (Dep : Prefixes.S0) = struct
     | _ -> failwith "Impossible situation"
 
   let inner_fold_left (type b) (x : t) (a : b) (f : b -> Dep.s * int -> b) : b =
+    let g acc (pair : Dep.s * int) = if snd pair = 0 then acc else f acc pair in
     let rec aux (f : b -> Dep.s * int -> b) (prefixes : Dep.s) (acc : b)
         (tree : t) =
       let label, n, subnodes = Nodes.as_tuple tree in
@@ -89,7 +91,7 @@ module MakePrefixTree (Dep : Prefixes.S0) = struct
       in
       f rec_acc (value, n)
     in
-    aux f Dep.empty a x
+    aux g Dep.empty a x
 
   let fold_left2 (type b) (tree : t) (acc : b) (f : b -> elt * int -> b) : b =
     inner_fold_left tree acc (fun acc (x, n) -> f acc (Dep.join x, n))
@@ -99,6 +101,7 @@ module MakePrefixTree (Dep : Prefixes.S0) = struct
 
   let inner_fold_right (type b) (tree : t) (acc : b) (f : Dep.s * int -> b -> b)
       : b =
+    let g (pair : Dep.s * int) acc = if snd pair = 0 then acc else f pair acc in
     let rec aux (f : Dep.s * int -> b -> b) (prefixes : Dep.s) (tree : t)
         (acc : b) =
       let label, n, subnodes = Nodes.as_tuple tree in
@@ -110,7 +113,7 @@ module MakePrefixTree (Dep : Prefixes.S0) = struct
       in
       f (value, n) rec_acc
     in
-    aux f Dep.empty tree acc
+    aux g Dep.empty tree acc
 
   let fold_right (type b) (tree : t) (f : elt -> b -> b) (acc : b) : b =
     inner_fold_right tree acc (fun (x, _) -> f (Dep.join x))
@@ -122,6 +125,9 @@ module MakePrefixTree (Dep : Prefixes.S0) = struct
     let prefixes = Dep.split key in
     inner_fold_left tree 0 (fun acc (x, n) ->
         if [%eq: Dep.s] x prefixes then n else acc)
+
+  let length (tree : t) : int =
+    inner_fold_left tree 0 (fun acc (_, n) -> acc + n)
 
   let inner_insert n (key : elt) (tree : t) : t =
     let rec chain (x, xs) n : t =
@@ -165,7 +171,7 @@ module type Mapper = sig
   type t1
   type t2
 
-  val polymorphic_map : (elt1 * int -> elt2 * int) -> t1 -> t2
+  val map : (elt1 * int -> elt2 * int) -> t1 -> t2
 end
 
 module MakeMapper (Source : Bag) (Target : Bag) = struct
@@ -174,7 +180,7 @@ module MakeMapper (Source : Bag) (Target : Bag) = struct
   type t1 = Source.t
   type t2 = Target.t
 
-  let polymorphic_map (f : elt1 * int -> elt2 * int) (set : t1) : t2 =
+  let map (f : elt1 * int -> elt2 * int) (set : t1) : t2 =
     Source.fold_left2 set Target.empty (fun t ln -> Target.add2 (f ln) t)
 end
 

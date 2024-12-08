@@ -18,6 +18,7 @@ module type Bag = sig
   val filter : (elt * int -> bool) -> t -> t
   val to_list2 : t -> (elt * int) list
   val from_list2 : (elt * int) list -> t
+  val length : t -> int
 end
 
 module MakePrefixTree (Dep : Prefixes.S0) : Bag with type elt = Dep.els
@@ -28,7 +29,7 @@ module type Mapper = sig
   type t1
   type t2
 
-  val polymorphic_map : (elt1 * int -> elt2 * int) -> t1 -> t2
+  val map : (elt1 * int -> elt2 * int) -> t1 -> t2
 end
 
 module MakeMapper (Source : Bag) (Target : Bag) :
